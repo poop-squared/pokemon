@@ -32,6 +32,7 @@ plot2 = ggplot(Generation.Legendary, aes(x = Generation, y = Generation.Legendar
 plot2 + geom_bar(aes(fill = islegendary), stat = "identity", position = "dodge") + xlab("Generation") + ylab("Number of Pokemon") + 
   ggtitle("Pokemon Distribution by Generation") + theme(legend.position = "bottom") + facet_grid(~Generation) +
   geom_text(stat = 'count', aes(label = ..identity..), vjust = -0.5)
+#test
 
 
 
