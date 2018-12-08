@@ -59,3 +59,4 @@ names(all.winners)
 combats.diff0[8] = ifelse(all.winners[14] == "True" , 1, 0)
 combats.diff0[9] = ifelse(all.losers[14] == "True" , 1, 0)
 
+#blabla
