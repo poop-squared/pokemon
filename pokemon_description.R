@@ -80,5 +80,5 @@ plot(as.phylo(hc1), type = "fan", tip.color = palette.col[cluster.all.18], label
 cluster.cut.all = cutree(hc1, 18)
 pokedex$cluster = cluster.cut.all
 pokedex[order(pokedex$cluster),]
-##
+##asd
 
