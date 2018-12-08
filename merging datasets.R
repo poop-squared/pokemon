@@ -58,3 +58,4 @@ combats.diff0[c(2:7)] = all.winners[c(7:12)] - all.losers[c(7:12)] #difference i
 names(all.winners)
 combats.diff0[8] = ifelse(all.winners[14] == "True" , 1, 0)
 combats.diff0[9] = ifelse(all.losers[14] == "True" , 1, 0)
+
