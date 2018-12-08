@@ -31,21 +31,23 @@ plot2 + geom_bar(aes(fill = Legendary_Pokemon), stat = "identity", position = "d
 attach(pokedex)
 
 ## Dendogram for Generation 1 ##
-pokedex.gen1 = pokedex[c(1:166), -c(1,2)]
+pokedex.gen1 = pokedex[c(1:166),]
 pokedex.gen1.names = pokedex[c(1:166),]
 View(pokedex.gen1)
-rownames(pokedex.gen1) = pokedex.gen1.names$Name
+rownames(pokedex.gen1.stats) = pokedex.gen1.names$Name
 
 # Create a dendogram using hierarchical clustering
 install.packages('ape')
 library("ape")
-hc = hclust(dist(pokedex.gen1))
 
-# Plor a regular dendogram to make a "good" cut - decided to go for 11
-plot(hc, hang = -1, cex = 0.6)
-abline(h=160, col = "green", lty = 2)
-abline(h=150, col = "red", lty = 2)
-abline(h=140, col = "blue", lty = 2)
+pokedex.gen1.stats = pokedex.gen1[,c(5:10)]
+hc = hclust(dist(pokedex.gen1.stats))
+
+# # Plor a regular dendogram to make a "good" cut - decided to go for 11
+# plot(hc, hang = -1, cex = 0.6)
+# abline(h=160, col = "green", lty = 2)
+# abline(h=150, col = "red", lty = 2)
+# abline(h=140, col = "blue", lty = 2)
 
 # Real Dendogram that we will use for the paper (only generation 1 for viewing purposes)
 plot(as.phylo(hc), type = "fan")
@@ -63,10 +65,11 @@ cluster.cut = cutree(hc, 18)
 # Include the new vector in the original gen1 pokedex DF
 pokedex.gen1$cluster = cluster.cut
 
+
 ## Clustering (dendogram) for All Generations
-pokedex.allgen = pokedex[, -c(1,2)]
-rownames(pokedex.allgen) = pokedex$Name
-hc1 = hclust(dist(pokedex.allgen))
+pokedex.allgen.stats = pokedex[, c(5:10)]
+rownames(pokedex.allgen.stats) = pokedex$Name
+hc1 = hclust(dist(pokedex.allgen.stats))
 plot(as.phylo(hc1), type = "fan")
 cluster.all.18 = cutree(hc1, 18)
 palette.col = c("blueviolet","blue","beige","aquamarine","cadetblue1","skyblue","orange","darkolivegreen","red","green",
@@ -76,6 +79,6 @@ plot(as.phylo(hc1), type = "fan", tip.color = palette.col[cluster.all.18], label
 # Include the new vector in the original pokedex DF
 cluster.cut.all = cutree(hc1, 18)
 pokedex$cluster = cluster.cut.all
-
+pokedex[order(pokedex$cluster),]
 ##
 
