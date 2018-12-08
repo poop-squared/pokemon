@@ -44,8 +44,6 @@ all.losers = subset(combats0, Outcome != "Winner")
 
 lengendary.winners = subset(all.winners, Legendary == "True")
 lengendary.losers = subset(all.losers, Legendary == "True")
-names(combats0)
-
 
 #create a new dataframe for attribute differences
 combats.diff0 = data.frame(matrix(nrow =nrow(combats0)/2 , ncol = 9))
@@ -56,8 +54,7 @@ names(combats.diff0)
 #start filling it with data
 combats.diff0[1] = rownames(combats.diff0) #battle ID
 combats.diff0[c(2:7)] = all.winners[c(7:12)] - all.losers[c(7:12)] #difference in stats
-names(all.winners)
+
 combats.diff0[8] = ifelse(all.winners[14] == "True" , 1, 0)
 combats.diff0[9] = ifelse(all.losers[14] == "True" , 1, 0)
 
-#blabla
