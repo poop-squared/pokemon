@@ -1,0 +1,11 @@
+install.packages("ggfortify")
+install.packages("rgl")
+
+library(rgl)
+library(data.table)
+library(dplyr)
+library(reshape)
+library(reshape2)
+library(ggplot2)
+library(ggplot2)
+library(ggfortify)
