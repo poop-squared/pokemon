@@ -53,6 +53,9 @@ plot(as.phylo(hc), type = "fan")
 cluster.11 = cutree(hc, 11)
 
 library(RColorBrewer)
+color.count = 20
+palette1 = colorRampPalette(brewer.pal(9,"Set1"))
+
 spectralcol = brewer.pal(11, "Spectral")
 plot(as.phylo(hc), type = "fan", tip.color = spectralcol[cluster.11], label.offset = 1)
 
