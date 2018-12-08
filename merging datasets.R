@@ -17,7 +17,6 @@ str(combats) # data is numeric
 for (i in 1:nrow(combats)){
   combats$Loser[i] = combats$First_pokemon[i] + combats$Second_pokemon[i] - combats$Winner[i] 
 }
-names(combats)
 combats= combats[,-c(2,3)]
 #now we have dataframe with winner and loser and combat ID
 
@@ -27,7 +26,7 @@ library(reshape2)
 melted.combats = melt(combats, id = "BattleID")
 #add attributes
 melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
-#reorder them by battle ID and
+#reorder them by battle ID and outcome
 names(melted.combats)[c(1,3)] = c("PokeID","Outcome")
 melted.combats = melted.combats[order(melted.combats$BattleID, melted.combats$Outcome),]
 rownames(melted.combats) = 1:nrow(melted.combats)
