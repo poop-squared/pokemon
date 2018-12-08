@@ -50,17 +50,15 @@ abline(h=140, col = "blue", lty = 2)
 # Real Dendogram that we will use for the paper (only generation 1 for viewing purposes)
 plot(as.phylo(hc), type = "fan")
 # cutting dendrogram in 11 clusters
-cluster.11 = cutree(hc, 11)
+cluster.18 = cutree(hc, 18)
 
-library(RColorBrewer)
-color.count = 20
-palette1 = colorRampPalette(brewer.pal(9,"Set1"))
-
-spectralcol = brewer.pal(11, "Spectral")
-plot(as.phylo(hc), type = "fan", tip.color = spectralcol[cluster.11], label.offset = 1)
+palette.col = c("blueviolet","blue","beige","aquamarine","cadetblue1","skyblue","orange","darkolivegreen","red","green",
+                "yellow","plum","cyan4","wheat","magenta","dimgray","coral","goldenrod")
+#spectralcol = brewer.pal(11, "Spectral")
+plot(as.phylo(hc), type = "fan", tip.color = palette.col[cluster.18], label.offset = 1)
 
 # Cut the tree at 11 branches and create a vector using that clustering
-cluster.cut = cutree(hc, 11)
+cluster.cut = cutree(hc, 18)
 
 # Include the new vector in the original gen1 pokedex DF
 pokedex.gen1$cluster = cluster.cut
@@ -70,12 +68,14 @@ pokedex.allgen = pokedex[, -c(1,2)]
 rownames(pokedex.allgen) = pokedex$Name
 hc1 = hclust(dist(pokedex.allgen))
 plot(as.phylo(hc1), type = "fan")
-cluster.all.11 = cutree(hc1, 11)
-spectralcol = brewer.pal(11, "Spectral")
-plot(as.phylo(hc1), type = "fan", tip.color = spectralcol[cluster.all.11], label.offset = 1)
+cluster.all.18 = cutree(hc1, 18)
+palette.col = c("blueviolet","blue","beige","aquamarine","cadetblue1","skyblue","orange","darkolivegreen","red","green",
+                "yellow","plum","cyan4","wheat","magenta","dimgray","coral","goldenrod")
+plot(as.phylo(hc1), type = "fan", tip.color = palette.col[cluster.all.18], label.offset = 1)
 
 # Include the new vector in the original pokedex DF
-cluster.cut.all = cutree(hc1, 11)
+cluster.cut.all = cutree(hc1, 18)
 pokedex$cluster = cluster.cut.all
 
+##
 
