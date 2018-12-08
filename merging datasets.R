@@ -35,7 +35,7 @@ rownames(melted.combats) = 1:nrow(melted.combats)
 ### Subsetting ####
 combats0 = melted.combats
 
-combats0[13] = factor(combats0[13]) ###Check why this is not factorizing
+combats0[,13] = as.factor(combats0[,13]) ###Check why this is not factorizing
 
 
 all.winners = subset(combats0, Outcome == "Winner")
