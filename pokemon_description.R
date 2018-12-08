@@ -8,6 +8,8 @@ library("ggplot2")
 ##### Pokedex Data Description #####
 attach(pokedex)
 
+names(pokedex)[1,8,9] = c("PokeID", "Sp.Atk","Sp.Def")
+
 ## Bar graph
 
 # Pokemon Type Distribution (includes legendary breakdown)
