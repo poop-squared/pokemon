@@ -70,8 +70,9 @@ plot(as.phylo(hc1), type = "fan")
 cluster.all.11 = cutree(hc1, 11)
 spectralcol = brewer.pal(11, "Spectral")
 plot(as.phylo(hc1), type = "fan", tip.color = spectralcol[cluster.all.11], label.offset = 1)
+
 # Include the new vector in the original pokedex DF
 cluster.cut.all = cutree(hc1, 11)
 pokedex$cluster = cluster.cut.all
 
-#### Principal component analysis ####
+
