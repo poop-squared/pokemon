@@ -28,14 +28,15 @@ melted.combats = melt(combats, id = "BattleID")
 #add attributes
 melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
 #reorder them by battle ID and
-melted.combats = melted.combats[order(melted.combats$BattleID, melted.combats$Outcome),]
 names(melted.combats)[c(1,3)] = c("PokeID","Outcome")
+melted.combats = melted.combats[order(melted.combats$BattleID, melted.combats$Outcome),]
 rownames(melted.combats) = 1:nrow(melted.combats)
 
 ### Subsetting ####
 combats0 = melted.combats
 
 combats0[,13] = as.factor(combats0[,13]) ###Check why this is not factorizing
+str(combats0)
 
 
 all.winners = subset(combats0, Outcome == "Winner")
