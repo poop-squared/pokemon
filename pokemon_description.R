@@ -29,6 +29,17 @@ plot1 + geom_bar(aes(fill = Legendary)) +
   scale_fill_manual(values = palette.col.short) +
   theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
 
+# Pokemon Type II Distribution (includes legendary breakdown)
+plot1.1 = ggplot(pokedex, aes(Type.2))
+plot1.1 + geom_bar(aes(fill = Legendary)) + 
+  xlab("Secondary Pokemon Type") +
+  ylab("Number of Pokemon") + 
+  ggtitle("Pokemon Distribution by Type II") + 
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) + 
+  guides(fill=guide_legend("Legendary", nrow = 1)) +
+  scale_fill_manual(values = palette.col.short) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
+
 # Pokemon Generation Distribution (includes legendary breakdown) 
 pokedex$count = 1
 Generation.Legendary = 
@@ -52,13 +63,8 @@ Generation.Type1 = aggregate(pokedex$count, by = list(Generation = pokedex$Gener
                              FUN = sum)
 
 length(unique(Generation.Type1$Type))
-
-
-ggplot(mtcars) + 
-  geom_histogram(aes(factor(hp)), fill=getPalette(colourCount)) + 
-  theme(legend.position="right")
-
 length(Generation.Legendary$x)
+
 plot3 = ggplot(Generation.Type1, aes(x = Type, y = Generation.Type1$x))
 plot3 + geom_col(aes(x = Generation.Type1$Type, fill = factor(Generation.Type1$Generation), y = x)) +
   xlab("Type") + 
@@ -76,13 +82,14 @@ attach(pokedex)
 ## Dendogram for Generation 1 ##
 pokedex.gen1 = pokedex[c(1:166),]
 pokedex.gen1.names = pokedex[c(1:166),]
-rownames(pokedex.gen1.stats) = pokedex.gen1.names$Name
+
 
 # Create a dendogram using hierarchical clustering
 install.packages('ape')
 library("ape")
 
 pokedex.gen1.stats = pokedex.gen1[,c(5:10)]
+rownames(pokedex.gen1.stats) = pokedex.gen1.names$Name
 hc = hclust(dist(pokedex.gen1.stats))
 
 # # Plor a regular dendogram to make a "good" cut - decided to go for 11
@@ -98,7 +105,7 @@ cluster.18 = cutree(hc, 18)
 
 plot(as.phylo(hc), type = "fan", tip.color = palette.col.long[cluster.18], label.offset = 1)
 
-# Cut the tree at 11 branches and create a vector using that clustering
+# Cut the tree at 18 branches and create a vector using that clustering
 cluster.cut = cutree(hc, 18)
 
 # Include the new vector in the original gen1 pokedex DF
@@ -116,6 +123,6 @@ plot(as.phylo(hc1), type = "fan", tip.color = palette.col.long[cluster.all.18], 
 # Include the new vector in the original pokedex DF
 cluster.cut.all = cutree(hc1, 18)
 pokedex$cluster = cluster.cut.all
-pokedex[order(pokedex$cluster),]
 
 
+####Start Merging
