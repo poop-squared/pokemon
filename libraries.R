@@ -1,6 +1,11 @@
 install.packages("ggfortify")
 install.packages("rgl")
-
+install.packages("ape")
+install.packages("RColorBrewer")
+install.packages('ape')
+library(ape)
+library(RColorBrewer)
+library(ape)
 library(rgl)
 library(data.table)
 library(dplyr)
