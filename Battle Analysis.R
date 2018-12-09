@@ -1,3 +1,4 @@
+
 hp.pos = 100*nrow(combats.diff0[combats.diff0[2] > 0,])/ nrow(combats.diff0)
 atk.pos = 100*nrow(combats.diff0[combats.diff0[3] > 0,])/ nrow(combats.diff0)
 def.pos = 100*nrow(combats.diff0[combats.diff0[4] > 0,])/ nrow(combats.diff0)
@@ -11,8 +12,13 @@ positive.difs.df = data.frame(matrix(nrow = length (positive.difs), ncol = 2))
 positive.difs.df[,2] = positive.difs
 positive.difs.df[,1] = names(combats.diff0[2:8])
 
-
-plot4+geom_bar()
+plot4 = ggplot(data = positive.difs.df, aes(x = X1, y = X2))
+plot4 + geom_bar(stat = "identity", fill = "#FF4933") +
+  geom_text(aes(label = X2, vjust = 1.6)) +
+  xlab("Attributes") +
+  ylab("Percentage of Wins") + 
+  ggtitle("Percentage of Wins given positive attribute advantage") + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle=0, vjust=0.5))
 
 ### PCA analysis ####
 
