@@ -37,9 +37,35 @@ autoplot(pca.combat.diff, data = combats.diff0.vars, loadings = TRUE, loadings.l
 combats0[combats0$BattleID=='1',]
 ## good up to this point
 
-plot3d(pca.combat.diff$scores[,1:3])
-text3d(pca.combat.diff$loadings[,1:3], texts = rownames(pc$loadings), col="red"
-        coords=NULL
-        for (i in 1:nrow(pc$loadings)) { coords= rbind(coords, rbind(c(0,0,0), pc$loadings[i,1:3])) }
-        lines3d(coords, col="red", lwd=4) text3d(pc$scores[,1:3])
-        text3d(pc$loadings[,1:3], texts=rownames(pc$loadings), col="red")
+        ### PCA analysis ####
+        
+        #What are the attributes of winners
+        str(all.winners)
+        all.winners.vars = all.winners[c(7:12)]
+        pca.winners = prcomp(all.winners.vars, scale = TRUE)
+        pca.winners
+        
+        install.packages('factoextra')
+        library(factoextra)
+        #scree chart
+        fviz_eig(pca.winners) 
+        #variable analysis
+        fviz_pca_var(pca.winners,
+                     col.var = "contrib", # Color by contributions to the PC
+                     gradient.cols = palette.col.long,
+                     repel = TRUE,     # Avoid text overlapping
+                     title = "Variables PCA - Attributes of Winners")
+        
+        #What are the attributes of losers
+        all.losers.vars = all.losers[c(7:12)]
+        pca.losers = prcomp(all.losers.vars, scale = TRUE)
+        pca.losers
+        
+        #scree chart
+        fviz_eig(pca.losers) 
+        #variable analysis
+        fviz_pca_var(pca.losers,
+                     col.var = "contrib", # Color by contributions to the PC
+                     gradient.cols = palette.col.long,
+                     repel = TRUE,     # Avoid text overlapping
+                     title = "Variables PCA - Attributes of Losers")

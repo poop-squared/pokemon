@@ -29,7 +29,7 @@ library(reshape)
 library(reshape2)
 melted.combats = melt(combats, id = "BattleID")
 #add attributes
-melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
+melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "X.", all.x = TRUE)
 #reorder them by battle ID and outcome
 names(melted.combats)[c(1,3)] = c("PokeID","Outcome")
 melted.combats = melted.combats[order(melted.combats$BattleID, melted.combats$Outcome),]
