@@ -36,6 +36,7 @@ all.losers.vars = all.losers[c(7:12)]
 pca.losers = prcomp(all.losers.vars, scale = TRUE)
 pca.losers
 
+
 #scree chart
 fviz_eig(pca.losers) 
 #variable analysis
@@ -46,6 +47,14 @@ fviz_pca_var(pca.losers,
              title = "Variables PCA - Attributes of Losers")
 
 
+#scree chart
+fviz_eig(pca.losers) 
+#variable analysis
+fviz_pca_var(pca.losers,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = palette.col.long,
+             repel = TRUE,     # Avoid text overlapping
+             title = "Variables PCA - Attributes of Losers")
 
 # library(ggplot2)
 # library(ggfortify)
@@ -60,6 +69,20 @@ fviz_pca_var(pca.losers,
 #### combat diff analysis
 combats.diff0.vars = combats.diff0[c(2:7)]
 pca.combat.diff = prcomp(combats.diff0.vars, scale = TRUE)
+
+
+
+#scree chart
+fviz_eig(pca.combat.diff,
+         main = "Variable PCA - Attribute Difference") 
+#variable analysis
+fviz_pca_var(pca.combat.diff,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = palette.col.long,
+             repel = TRUE,     # Avoid text overlapping
+             title = "Variables PCA - Attribute Difference"
+)
+
 
 #scree chart
 fviz_eig(pca.combat.diff,
@@ -116,9 +139,33 @@ str(combats.poke$outcome.for.1)
 # combats.qda = lda(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed)
 # partimat(outcome.for.1~diff.HP+ dif.Attack + dif.Def, method = "qda") #terrible graphs. abort mission
 
+
 #Tree
 outcome.tree = tree(outcome.for.1 ~ diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed)
 outcome.tree = rpart(outcome.for.1 ~ diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed, control = rpart.control(cp = 0.0005))
 par(mfrow=c(1,1))
 rpart.plot(outcome.tree)
+
+
+#### Predictive Model ###
+#separate pokemon 1 and pokemon 2
+combats1 = read.csv("combats.csv")
+combats1$BattleID <- seq.int(nrow(combats1))
+combats1= combats1[,c(4,1,2,3)]
+names(combats1)
+combats.poke1 = combats1[c(1,2)] 
+combats.poke2 = combats1[c(1,3)]
+#add stats
+  
+combats.poke1 = merge(combats.poke1, pokedex, by.x = "First_pokemon", by.y = "PokeID", all.x = TRUE)
+combats.poke2 = merge(combats.poke2, pokedex, by.x = "Second_pokemon", by.y = "PokeID", all.x = TRUE)
+combats.poke = merge(combats.poke1, combats.poke2, by.x = "BattleID", by.y = "BattleID", all.x = TRUE)
+#add difference lines for all 6 sats and Sumtotal
+names(combats.poke)
+combats.poke[c(32:38)] = 0
+names(combats.poke)[c(32:38)] = c("diff.HP", "dif.Attack","dif.Def","dif.Sp.Atk","dif.Sp.Def","dif.Speed","dif.Sumtotal")
+combats.poke[c(32:38)] = combats.poke[c(6:11)] - combats.poke[c(21:26)]
+
+#merge winner id
+combats.poke = merge(combats.poke, combats1, byx)
 
