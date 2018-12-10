@@ -28,15 +28,20 @@ combats= combats[,-c(2,3)]
 library(reshape)
 library(reshape2)
 melted.combats = melt(combats, id = "BattleID")
+head(melted.combats)
 #add attributes
+
+melted.combats.merged= merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
+
 melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "X.", all.x = TRUE)
+
 #reorder them by battle ID and outcome
-names(melted.combats)[c(1,3)] = c("PokeID","Outcome")
-melted.combats = melted.combats[order(melted.combats$BattleID, melted.combats$Outcome),]
-rownames(melted.combats) = 1:nrow(melted.combats)
+names(melted.combats.merged)[c(1,3)] = c("PokeID","Outcome")
+melted.combats.merged = melted.combats.merged[order(melted.combats.merged$BattleID, melted.combats.merged$Outcome),]
+rownames(melted.combats.merged) = 1:nrow(melted.combats.merged)
 
 ### Subsetting ####
-combats0 = melted.combats
+combats0 = melted.combats.merged
 
 combats0[,13] = as.factor(combats0[,13]) ###Check why this is not factorizing
 str(combats0)
