@@ -1,21 +1,4 @@
-library(gplots)
-library(ggplot2)
-library(dplyr)
-library(gridExtra)
-library(fmsb)
-library(corrplot)
-library(corrgram)
-library(caTools)
-library(gplots)
-library(RColorBrewer)
-library(ggradar)
-library(ggplot2)
-library(tidytext)
-library(tidyverse)
-library(highcharter)
-library(plotly)
-library(janitor)
-library(GGally)
+
 
 cluster.stats = pokedex[,c(14,5:10)]
 
@@ -34,7 +17,7 @@ pokedex.nonleg %>% group_by(Name,Attack)%>% arrange(desc(Attack)) %>% ungroup() 
   select("Name","Type.1","Attack","cluster")%>%head(10)%>% data.frame()
 
 #Top 10 Defense Pokemon
-pokedex.nonleg %>% group_by(Name,Defense)%>% arrange(desc(Defense)) %>% ungroup()  %>%
+pokedex %>% group_by(Name,Defense)%>% arrange(desc(Defense)) %>% ungroup()  %>%
   select("Name","Type.1","Defense","cluster")%>%head(10)%>% data.frame()
 
 #Top 10 Sp..Atk Pokemon
@@ -46,7 +29,7 @@ pokedex.nonleg %>% group_by(Name,Sp..Def)%>% arrange(desc(Sp..Def)) %>% ungroup(
   select("Name","Type.1","Sp..Def","cluster")%>%head(10)%>% data.frame()
 
 #Top 10 Speed Pokemon
-pokedex.nonleg %>% group_by(Name,Speed)%>% arrange(desc(Speed)) %>% ungroup()  %>%
+pokedex%>% group_by(Name,Speed)%>% arrange(desc(Speed)) %>% ungroup()  %>%
   select("Name","Type.1","Speed","cluster")%>%head(10)%>% data.frame()
 
 ## Type 1 2 graph
@@ -58,40 +41,42 @@ hchart(pokedex$Type.2,type="column")
 ## Stats distribution by type
 
 #HP
-hcboxplot(x=pokedex.nonleg$HP,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$HP,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='HP Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(HP))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+ggplot(pokedex,aes(HP))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('HP Density by type')
 
 #Attack
-hcboxplot(x=pokedex.nonleg$Attack,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$Attack,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='Attack Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(Attack))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+ggplot(pokedex,aes(Attack))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Attack Density by type')
 
 #Defense
-hcboxplot(x=pokedex.nonleg$Defense,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$Defense,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='Defense Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(Defense))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+
+ggplot(pokedex,aes(Defense))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+facet_wrap(~Type.1)+
+  ggtitle('Defense Density by type')
 
 #SP. Attack
-hcboxplot(x=pokedex.nonleg$Sp..Atk,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$Sp..Atk,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='SP. Attack Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(Sp..Atk))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+ggplot(pokedex,aes(Sp..Atk))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Sp. Attack Density by type')
 
 #SP. Def
-hcboxplot(x=pokedex.nonleg$Sp..Def,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$Sp..Def,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='SP. Defense Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(Sp..Def))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+ggplot(pokedex,aes(Sp..Def))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('SP. Defense Density by type')
 
 #Speed
-hcboxplot(x=pokedex.nonleg$Speed,var=pokedex.nonleg$Type.1,color="green") %>%
-  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+hcboxplot(x=pokedex$Speed,var=pokedex$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='Speed Distribution by Type')
 
-ggplot(pokedex.nonleg,aes(Speed))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)
+ggplot(pokedex,aes(Speed))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Speed Density by type')
 
 
 ## By Generation
@@ -165,9 +150,13 @@ hcboxplot(x=pokedex.nonleg$Speed,var=pokedex.nonleg$cluster,color="green") %>%
 
 ggpairs(pokedex.nonleg[5:10])
 
-## Finding best combination of attack + speed / sp.attack + speed / HP + Def  / Def + Sp.Def
+## Finding best combination of attack + speed / sp.attack + speed / HP + Def  / Def + Sp.Def visual 
 plot_ly(pokedex.nonleg,x=~Attack,y=~Speed,type="scatter",mode="markers",text=~Name) 
 plot_ly(pokedex.nonleg,x=~Sp..Atk,y=~Speed,type="scatter",mode="markers",text=~Name) 
 plot_ly(pokedex.nonleg,x=~HP,y=~Defense,type="scatter",mode="markers",text=~Name) 
 plot_ly(pokedex.nonleg,x=~Defense,y=~Sp..Def,type="scatter",mode="markers",text=~Name) 
+plot_ly(pokedex.nonleg,x=~Defense,y=~Speed,type="scatter",mode="markers",text=~Name) 
+
+unique(pokedex.nonleg$cluster)
+
 
