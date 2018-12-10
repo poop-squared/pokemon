@@ -166,6 +166,9 @@ combats.poke[c(32:38)] = 0
 names(combats.poke)[c(32:38)] = c("diff.HP", "dif.Attack","dif.Def","dif.Sp.Atk","dif.Sp.Def","dif.Speed","dif.Sumtotal")
 combats.poke[c(32:38)] = combats.poke[c(6:11)] - combats.poke[c(21:26)]
 
+
 #merge winner id
 combats.poke = merge(combats.poke, combats1, byx)
+
+
 
