@@ -9,19 +9,7 @@ pokedex[,15] = pokedex[5]+pokedex[6]+pokedex[7]+pokedex[8]+pokedex[9]+pokedex[10
 # names(combats)
 # names(pokedex)[c(1,8,9)] = c("PokeID","Sp.Atk","Sp.Def")
 
-#Add Battle ID
-combats$BattleID <- seq.int(nrow(combats))
-combats= combats[,c(4,1,2,3)]
 
-combats$Loser = 0
-
-str(combats) # data is numeric
-
-#To identify the loser, since the ID's are numeric and the winner is known, we can subtract its id from the sum of both
-
-combats$Loser = combats$First_pokemon + combats$Second_pokemon - combats$Winner
-
-combats= combats[,-c(2,3)]
 #now we have dataframe with winner and loser and combat ID
 
 #melt them into a tidy dataframe

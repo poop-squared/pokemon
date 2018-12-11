@@ -11,99 +11,12 @@ positive.difs = c(hp.pos,atk.pos,def.pos,sp.atk.pos,sp.def.pos,speed.pos,sumtota
 positive.difs.df = data.frame(matrix(nrow = length (positive.difs), ncol = 2))
 positive.difs.df[,2] = positive.difs
 positive.difs.df[,1] = names(combats.diff0[2:8])
-
-### PCA analysis ####
-
-#What are the attributes of winners
-str(all.winners)
-all.winners.vars = all.winners[c(7:12)]
-pca.winners = prcomp(all.winners.vars, scale = TRUE)
-pca.winners
-
-install.packages('factoextra')
-library(factoextra)
-#scree chart
-fviz_eig(pca.winners) 
-#variable analysis
-fviz_pca_var(pca.winners,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = palette.col.long,
-             repel = TRUE,     # Avoid text overlapping
-             title = "Variables PCA - Attributes of Winners")
-
-#What are the attributes of losers
-all.losers.vars = all.losers[c(7:12)]
-pca.losers = prcomp(all.losers.vars, scale = TRUE)
-pca.losers
-
-
-#scree chart
-fviz_eig(pca.losers) 
-#variable analysis
-fviz_pca_var(pca.losers,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = palette.col.long,
-             repel = TRUE,     # Avoid text overlapping
-             title = "Variables PCA - Attributes of Losers")
-
-
-
-#scree chart
-fviz_eig(pca.losers) 
-#variable analysis
-fviz_pca_var(pca.losers,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = palette.col.long,
-             repel = TRUE,     # Avoid text overlapping
-             title = "Variables PCA - Attributes of Losers")
-
-
-
-# library(ggplot2)
-# library(ggfortify)
-# autoplot(pca.winners, data = all.winners.vars, loadings = TRUE, loadings.label = TRUE)
-# 
-# 
-# pve1=(pca.winners$sdev^2)/sum(pca.winners$sdev^2)
-# par(mfrow=c(1,2))
-# plot(pve1, ylim=c(0,1))
-# plot(cumsum(pve1), ylim=c(0,1))
-
-#### combat diff analysis
-combats.diff0.vars = combats.diff0[c(2:7)]
-pca.combat.diff = prcomp(combats.diff0.vars, scale = TRUE)
-
-
-
-#scree chart
-fviz_eig(pca.combat.diff,
-         main = "Variable PCA - Attribute Difference") 
-#variable analysis
-fviz_pca_var(pca.combat.diff,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = palette.col.long,
-             repel = TRUE,     # Avoid text overlapping
-             title = "Variables PCA - Attribute Difference"
-)
-
-
-#scree chart
-fviz_eig(pca.combat.diff,
-         main = "Variable PCA - Attribute Difference") 
-#variable analysis
-fviz_pca_var(pca.combat.diff,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = palette.col.long,
-             repel = TRUE,     # Avoid text overlapping
-             title = "Variables PCA - Attribute Difference"
-)
-
-
+### Tree analysis ####
 #### Predictive Model ###
 #separate pokemon 1 and pokemon 2
-combats1 = combats
+combats1 = combats.a.train
 combats1$BattleID <- seq.int(nrow(combats1))
-combats1= combats1[,c(4,1,2,3)]
+
 names(combats1)
 combats.poke1 = combats1[c(1,2)] 
 combats.poke2 = combats1[c(1,3)]
@@ -154,21 +67,76 @@ summary(battle.forest)
 rpart.plot(battle.forest) #find optimal cp
 
 battle.forest1 = rpart(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed,
-                      control=rpart.control(cp=0.0000001))
+                       control=rpart.control(cp=0.0000001))
 printcp(battle.forest1)
 plotcp(battle.forest1)
-battle.forest1$cptable[which.min(battle.forest1$cptable[,"xerror"]),"CP"]
+cp.opt= battle.forest1$cptable[which.min(battle.forest1$cptable[,"xerror"]),"CP"]
 
 battle.forest.opt = rpart(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed,
-                       control=rpart.control(cp=9.533494e-05))
+                          control=rpart.control(cp=cp.opt))
 rpart.plot(battle.forest.opt)
 
 #Random forest
 battle.rand.forest = randomForest(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed,
-                             ntree = 500,
-                             importance = TRUE,
-                             do.trace = 10,
-                             data = combats.poke)
+                                  ntree = 500,
+                                  importance = TRUE,
+                                  do.trace = 10,
+                                  data = combats.poke)
 battle.rand.forest #OOB Estimate of error = 5%
 importance(battle.rand.forest)
 varImpPlot(battle.rand.forest)
+
+### PCA analysis ####
+
+#What are the attributes of winners
+str(all.winners)
+all.winners.vars = all.winners[c(7:12)]
+pca.winners = prcomp(all.winners.vars, scale = TRUE)
+pca.winners
+
+install.packages('factoextra')
+library(factoextra)
+#scree chart
+fviz_eig(pca.winners) 
+#variable analysis
+fviz_pca_var(pca.winners,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = palette.col.long,
+             repel = TRUE,     # Avoid text overlapping
+             title = "Variables PCA - Attributes of Winners")
+
+
+#What are the attributes of losers
+all.losers.vars = all.losers[c(7:12)]
+pca.losers = prcomp(all.losers.vars, scale = TRUE)
+pca.losers
+
+
+#scree chart
+fviz_eig(pca.losers) 
+#variable analysis
+fviz_pca_var(pca.losers,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = palette.col.long,
+             repel = TRUE,     # Avoid text overlapping
+             title = "Variables PCA - Attributes of Losers")
+
+
+
+#### combat diff analysis
+combats.diff0.vars = combats.diff0[c(2:7)]
+pca.combat.diff = prcomp(combats.diff0.vars, scale = TRUE)
+
+
+
+#scree chart
+fviz_eig(pca.combat.diff,
+         main = "Variable PCA - Attribute Difference") 
+#variable analysis
+fviz_pca_var(pca.combat.diff,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = palette.col.long,
+             repel = TRUE,     # Avoid text overlapping
+             title = "Variables PCA - Battle Attribute Difference"
+)
+
