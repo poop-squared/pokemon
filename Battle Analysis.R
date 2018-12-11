@@ -98,7 +98,7 @@ fviz_pca_var(pca.combat.diff,
 
 #### Predictive Model ###
 #separate pokemon 1 and pokemon 2
-combats1 = read.csv("combats.csv")
+combats1 = combats
 combats1$BattleID <- seq.int(nrow(combats1))
 combats1= combats1[,c(4,1,2,3)]
 names(combats1)
