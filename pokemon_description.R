@@ -78,7 +78,7 @@ Generation.Type1 = aggregate(pokedex.original$count, by = list(Generation = poke
 length(unique(Generation.Type1$Type))
 length(Generation.Legendary$x)
 
-plot3 = ggplot(Generation.Type1, aes(x = Type, y = Generation.Type1$x))
+plot3 = ggplot(Generation.Type1, aes(x = reorder(Type, x), y = Generation.Type1$x))
 plot3 + geom_col(aes(x = Generation.Type1$Type, fill = factor(Generation.Type1$Generation), y = x)) +
   xlab("Type") + 
   ylab("Number of Pokemon") + 
