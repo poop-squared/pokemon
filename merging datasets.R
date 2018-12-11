@@ -2,7 +2,7 @@
 pokedex$Sum.total = 0
 pokedex[,15] = pokedex[5]+pokedex[6]+pokedex[7]+pokedex[8]+pokedex[9]+pokedex[10] #check out how to do this efficiently
 
-combats = read.csv ("combats.csv")
+
 # pokedex = read.csv ("pokemon.csv")
 # 
 # names(pokedex)
@@ -31,9 +31,11 @@ melted.combats = melt(combats, id = "BattleID")
 head(melted.combats)
 #add attributes
 
+
 melted.combats.merged= merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
 
-melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "X.", all.x = TRUE)
+melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
+
 
 #reorder them by battle ID and outcome
 names(melted.combats.merged)[c(1,3)] = c("PokeID","Outcome")

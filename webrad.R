@@ -1,4 +1,4 @@
-res<-data.frame(pokedex %>% dplyr::select(cluster,HP, Attack, Defense, Sp..Atk, Sp..Def, Speed) %>% dplyr::group_by(cluster) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp..Atk + Sp..Def + Speed) %>% arrange(-sumChars))
+res<-data.frame(pokedex %>% dplyr::select(cluster,HP, Attack, Defense, Sp.Atk, Sp.Def, Speed) %>% dplyr::group_by(cluster) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp.Atk + Sp.Def + Speed) %>% arrange(-sumChars))
 res$color<-color
 max<- ceiling(apply(res[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
 min<-rep.int(0,6)
