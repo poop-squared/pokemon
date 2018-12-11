@@ -115,6 +115,19 @@ plot5 + geom_bar(stat = "identity", fill = "#FF4933") +
   ggtitle("Percentage of Wins given Speed Advantage per Cluster") + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
 
+# Re-order the DF by ranking
+clus.speed.positive.difs.df = clus.speed.positive.difs.df[order(clus.speed.positive.difs.df$X2), ]
+
 # Renaming Cluster to reflect their real battle power (Tiers) based on win percentage
+renamed.clusters.df = data.frame(matrix(nrow = 18, ncol = 3))
+renamed.clusters.df[,1] = clus.speed.positive.difs.df$X1
+renamed.clusters.df[,2] = clus.speed.positive.difs.df$X2
+renamed.clusters.df[,3] = 1:18
 
-
+plot6 = ggplot(data = renamed.clusters.df, aes(x = X3, y = X2))
+plot6 + geom_bar(stat = "identity", fill = "#FF4933") +
+  geom_text(aes(label = sprintf("%.01f %%", X2), vjust = 1.6)) +
+  xlab("Clusters") +
+  ylab("Percentage of Wins") + 
+  ggtitle("Percentage of Wins given Speed Advantage per Cluster") + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
