@@ -25,6 +25,7 @@ pokedex = subset(pokedex, !(PokeID %in% pokedex.test$PokeID))
 combats$BattleID <- seq.int(nrow(combats))
 combats= combats[,c(4,1,2,3)]
 
+combats.a = combats
 combats$Loser = 0
 
 #To identify the loser, since the ID's are numeric and the winner is known, we can subtract its id from the sum of both
@@ -36,7 +37,7 @@ combats= combats[,-c(2,3)]
 combats.original = combats
 combats.test = subset(combats, Winner %in% pokedex.test$PokeID |  Loser %in% pokedex.test$PokeID )
 combats = subset(combats, !(BattleID %in% combats.test$BattleID))
-
+combats.a.train = subset(combats.a, !(BattleID %in% combats.test$BattleID))
 
 # Palette Color
 palette.col.long = c("#FF4933","#FF8633","#FFBB33","#FFE633","#D7FF33","#99FF33","#52FF33","#33FF86","#33FFD1",
