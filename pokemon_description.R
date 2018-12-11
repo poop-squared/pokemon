@@ -1,49 +1,3 @@
-#### Import Datasets ####
-combats = read.csv("combats.csv")
-pokedex = read.csv("pokemon.csv")
-
-
-
-### Libraries ###
-library("ggplot2")
-
-##### Pokedex Data Description #####
-attach(pokedex)
-
-names(pokedex)[c(1,8,9)] = c("PokeID", "Sp.Atk","Sp.Def")
-names(pokedex)
-
-####training data = pokedex ######
-
-pokedex.original = pokedex
-pokedex.test = pokedex[pokedex$Generation==6,]
-pokedex = subset(pokedex, !(PokeID %in% pokedex.test$PokeID))
-
-
-
-#Add Battle ID
-combats$BattleID <- seq.int(nrow(combats))
-combats= combats[,c(4,1,2,3)]
-
-combats.a = combats
-combats$Loser = 0
-
-#To identify the loser, since the ID's are numeric and the winner is known, we can subtract its id from the sum of both
-
-combats$Loser = combats$First_pokemon + combats$Second_pokemon - combats$Winner
-
-combats= combats[,-c(2,3)]
-
-combats.original = combats
-combats.test = subset(combats, Winner %in% pokedex.test$PokeID |  Loser %in% pokedex.test$PokeID )
-combats = subset(combats, !(BattleID %in% combats.test$BattleID))
-combats.a.train = subset(combats.a, !(BattleID %in% combats.test$BattleID))
-
-# Palette Color
-palette.col.long = c("#FF4933","#FF8633","#FFBB33","#FFE633","#D7FF33","#99FF33","#52FF33","#33FF86","#33FFD1",
-                "#33D4FF","#339FFF","#336BFF","#3358FF","#5233FF","#8033FF","#B233FF","#FF33C4",
-                "#FF3396")
-palette.col.short = palette.col.long[c(1,4,7,10,12,17)]
 ## Bar graph
 
 # Pokemon Type Distribution (includes legendary breakdown)
@@ -74,7 +28,7 @@ Generation.Legendary =
   aggregate(pokedex.original$count, by = list(Generation = pokedex.original$Generation, Legendary_Pokemon = pokedex.original$Legendary)
                                  , FUN = sum)
 
-'NEEDS work on the labels positioning'
+
 plot2 = ggplot(Generation.Legendary, aes(x = Generation, y = Generation.Legendary$x))
 plot2 + 
   geom_bar(aes(fill = Legendary_Pokemon), stat = "identity", position = "dodge") +
@@ -82,10 +36,12 @@ plot2 +
   ylab("Number of Pokemon") + 
   ggtitle("Pokemon Distribution by Generation") + 
   theme(legend.position = "bottom") +
-  guides(fill=guide_legend("Legendary", nrow = 1)) +
-  scale_fill_manual(values = palette.col.short) +
-  geom_text(aes(label = Generation.Legendary$x), 
-            vjust=1.5, hjust=1.7,color="white", position = position_dodge(width = 0.8))
+  guides(fill=guide_legend("Legendary", nrow = 1))
+
+
+
+
+geom_text(aes(label=Number), position=position_dodge(width=0.9), vjust=-0.25)
 
 Generation.Type1 = aggregate(pokedex.original$count, by = list(Generation = pokedex.original$Generation, Type = pokedex.original$Type.1), 
                              FUN = sum)
@@ -103,57 +59,171 @@ plot3 + geom_col(aes(x = Generation.Type1$Type, fill = factor(Generation.Type1$G
   theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
 
 
+pokedex.nonleg = pokedex[pokedex$Legendary=='False',]
 
-#### Hierarchical clustering: divides data using a classification tree ####
-attach(pokedex)
+## Non legendary Stats
+#Top 10 HP Pokemon
+pokedex.original%>% group_by(Name,HP)%>% arrange(desc(HP)) %>% ungroup()  %>%
+  select("Name","Type.1","HP")%>%head(10)%>% data.frame()
 
-## Dendogram for Generation 1 ##
-pokedex.gen1 = pokedex[c(1:166),]
-pokedex.gen1.names = pokedex[c(1:166),]
+#Top 10 Attack Pokemon
+pokedex.original %>% group_by(Name,Attack)%>% arrange(desc(Attack)) %>% ungroup()  %>%
+  select("Name","Type.1","Attack")%>%head(10)%>% data.frame()
 
+#Top 10 Defense Pokemon
+pokedex.original %>% group_by(Name,Defense)%>% arrange(desc(Defense)) %>% ungroup()  %>%
+  select("Name","Type.1","Defense")%>%head(10)%>% data.frame()
 
-# Create a dendogram using hierarchical clustering
-install.packages('ape')
-library("ape")
+#Top 10 Sp..Atk Pokemon
+pokedex.original %>% group_by(Name,Sp.Atk)%>% arrange(desc(Sp.Atk)) %>% ungroup()  %>%
+  select("Name","Type.1","Sp.Atk")%>%head(10)%>% data.frame()
 
-pokedex.gen1.stats = pokedex.gen1[,c(5:10)]
-rownames(pokedex.gen1.stats) = pokedex.gen1.names$Name
-hc = hclust(dist(pokedex.gen1.stats))
+#Top 10 SP..Def Pokemon
+pokedex.original %>% group_by(Name,Sp.Def)%>% arrange(desc(Sp.Def)) %>% ungroup()  %>%
+  select("Name","Type.1","Sp.Def")%>%head(10)%>% data.frame()
 
-# # Plor a regular dendogram to make a "good" cut - decided to go for 11
-# plot(hc, hang = -1, cex = 0.6)
-# abline(h=160, col = "green", lty = 2)
-# abline(h=150, col = "red", lty = 2)
-# abline(h=140, col = "blue", lty = 2)
+#Top 10 Speed Pokemon
+pokedex.original%>% group_by(Name,Speed)%>% arrange(desc(Speed)) %>% ungroup()  %>%
+  select("Name","Type.1","Speed")%>%head(10)%>% data.frame()
 
-# Real Dendogram that we will use for the paper (only generation 1 for viewing purposes)
-plot(as.phylo(hc), type = "fan")
-# cutting dendrogram in 18 clusters
-cluster.18 = cutree(hc, 18)
+## Type 1 2 graph
 
-plot(as.phylo(hc), type = "fan", tip.color = palette.col.long[cluster.18], label.offset = 1)
-
-# Cut the tree at 18 branches and create a vector using that clustering
-cluster.cut = cutree(hc, 18)
-
-# Include the new vector in the original gen1 pokedex DF
-pokedex.gen1$cluster = cluster.cut
+hchart(pokedex.original$Type.1,type="column")
+hchart(pokedex.original$Type.2,type="column")
 
 
+## Stats distribution by type
 
-par(mfrow=c(1,1))
-## Clustering (dendogram) for All Generations (5 gens)
-pokedex.allgen.stats = pokedex[, c(5:10)]
-rownames(pokedex.allgen.stats) = pokedex$Name
-hc1 = hclust(dist(pokedex.allgen.stats))
-plot(as.phylo(hc1), type = "fan")
-cluster.all.18 = cutree(hc1, 18)
-plot(as.phylo(hc1), type = "fan", tip.color = palette.col.long[cluster.all.18], label.offset = 1)
+#HP
+hcboxplot(x=pokedex.original$HP,var=pokedex.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='HP Distribution by Type')
 
-# Include the new vector in the original pokedex DF
-cluster.cut.all = cutree(hc1, 18)
-pokedex$cluster = cluster.cut.all
+ggplot(pokedex.original,aes(HP))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('HP Density by type')
 
-table(pokedex$cluster)
+#Attack
+hcboxplot(x=pokedex.original$Attack,var=pokedex.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='Attack Distribution by Type')
 
-####Start Merging
+ggplot(pokedex.original,aes(Attack))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Attack Density by type')
+
+#Defense
+hcboxplot(x=pokedex.original$Defense,var=pokedex.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='Defense Distribution by Type')
+
+
+ggplot(pokedex.original,aes(Defense))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+facet_wrap(~Type.1)+
+  ggtitle('Defense Density by type')
+
+#SP. Attack
+hcboxplot(x=pokedex.original$Sp.Atk,var=pokedex.original.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='SP. Attack Distribution by Type')
+
+ggplot(pokedex.original,aes(Sp.Atk))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Sp. Attack Density by type')
+
+#SP. Def
+hcboxplot(x=pokedex.original$Sp.Def,var=pokedex.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")%>% hc_title(text='SP. Defense Distribution by Type')
+
+ggplot(pokedex.original,aes(Sp.Def))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('SP. Defense Density by type')
+
+#Speed
+hcboxplot(x=pokedex.original$Speed,var=pokedex.original$Type.1,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column") %>% hc_title(text='Speed Distribution by Type')
+
+ggplot(pokedex.original,aes(Speed))+geom_density(color="black", fill="lightblue")+facet_wrap(~Type.1)+ggtitle('Speed Density by type')
+
+
+## By Generation
+#HP
+hcboxplot(x=pokedex.original$HP,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+#Attack
+hcboxplot(x=pokedex.original$Attack,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+ggplot(pokedex.original,aes(Attack))+geom_density(color="black", fill="lightblue")+facet_wrap(~Generation)
+
+#Defense
+hcboxplot(x=pokedex.original$Defense,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+ggplot(pokedex.original,aes(Defense))+geom_density(color="black", fill="lightblue")+facet_wrap(~Generation)
+
+#SP. Attack
+hcboxplot(x=pokedex.original$Sp.Atk,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+ggplot(pokedex.original,aes(Sp.Atk))+geom_density(color="black", fill="lightblue")+facet_wrap(~Generation)
+
+#SP. Def
+hcboxplot(x=pokedex.original$Sp.Def,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+ggplot(pokedex.original,aes(Sp.Def))+geom_density(color="black", fill="lightblue")+facet_wrap(~Generation)
+
+#Speed
+hcboxplot(x=pokedex.original$Speed,var=pokedex.original$Generation,color="green") %>%
+  hc_add_theme(hc_theme_economist())%>%hc_chart(type = "column")
+
+ggplot(pokedex.original,aes(Speed))+geom_density(color="black", fill="lightblue")+facet_wrap(~Generation)
+
+
+###################Distribution by Gen############################
+
+color2<-c("#6F35FC","#B7B7CE","#A98FF3","#F95587","#B6A136")
+
+res2<-data.frame(pokedex %>% dplyr::select(Generation,HP, Attack, Defense, Sp.Atk, Sp.Def, Speed) %>% dplyr::group_by(Generation) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp.Atk + Sp.Def + Speed) %>% arrange(-sumChars))
+res2$color<-color2
+max<- ceiling(apply(res2[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
+min<-rep.int(0,6)
+par(mfrow=c(2,3))
+par(mar=c(1,1,1,1))
+for(i in 1:nrow(res2)){
+  curCol<-(col2rgb(as.character(res2$color[i]))%>% as.integer())/255
+  radarchart(rbind(max,min,res2[i,2:7]),
+             axistype=2 , 
+             pcol=rgb(curCol[1],curCol[2],curCol[3], alpha = 1) ,
+             pfcol=rgb(curCol[1],curCol[2],curCol[3],.5) ,
+             plwd=2 , cglcol="grey", cglty=1, 
+             axislabcol="black", caxislabels=seq(0,2000,5), cglwd=0.8, vlcex=0.8,
+             title=as.character(res2$Generation[i]))
+}
+
+###################  distribution by type ###########
+color<-c("#6F35FC","#B7B7CE","#A98FF3","#F95587","#B6A136","#EE8130","#F7D02C","#705746","#735797",
+         "#E2BF65","#96D9D6","#6390F0","#7AC74C","#C22E28","#D685AD","#A33EA1","#A8A77A")
+
+
+res3<-data.frame(pokedex[pokedex$Legendary=='False',] %>% dplyr::select(Type.1,HP, Attack, Defense, Sp.Atk, Sp.Def, Speed) %>% dplyr::group_by(Type.1) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp.Atk + Sp.Def + Speed) %>% arrange(-sumChars))
+res3$color<-color
+max<- ceiling(apply(res3[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
+min<-rep.int(0,6)
+par(mfrow=c(3,6))
+par(mar=c(1,1,1,1))
+for(i in 1:nrow(res3)){
+  curCol<-(col2rgb(as.character(res3$color[i]))%>% as.integer())/255
+  radarchart(rbind(max,min,res3[i,2:7]),
+             axistype=2 , 
+             pcol=rgb(curCol[1],curCol[2],curCol[3], alpha = 1) ,
+             pfcol=rgb(curCol[1],curCol[2],curCol[3],.5) ,
+             plwd=2 , cglcol="grey", cglty=1, 
+             axislabcol="black", caxislabels=seq(0,2000,5), cglwd=0.8, vlcex=0.8,
+             title=as.character(res3$Type.1[i]))
+}
+
+
+### would be intersting to now add a total stats column and see that distribution between clusters
+
+## Stats Corr and Distribution
+
+ggpairs(pokedex.original[5:10])
+
+## Finding best combination of attack + speed / sp.attack + speed / HP + Def  / Def + Sp.Def visual 
+plot_ly(pokedex.original,x=~Attack,y=~Speed,type="scatter",mode="markers",text=~Name, color = ~as.factor(Generation)) 
+plot_ly(pokedex.original,x=~Sp.Atk,y=~Speed,type="scatter",mode="markers",text=~Name,color = ~as.factor(Generation)) 
+plot_ly(pokedex.original,x=~HP,y=~Defense,type="scatter",mode="markers",text=~Name,color = ~as.factor(Generation)) 
+plot_ly(pokedex.original,x=~Defense,y=~Sp.Def,type="scatter",mode="markers",text=~Name,color = ~as.factor(Generation)) 
+plot_ly(pokedex.original,x=~Defense,y=~Speed,type="scatter",mode="markers",text=~Name,color = ~as.factor(Generation)) 
+
+unique(pokedex.original$cluster)

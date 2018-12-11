@@ -40,3 +40,11 @@ library(plotly)
 library(janitor)
 library(GGally)
 library(factoextra)
+
+
+# Palette Color
+palette.col.long = c("#FF4933","#FF8633","#FFBB33","#FFE633","#D7FF33","#99FF33","#52FF33","#33FF86","#33FFD1",
+                     "#33D4FF","#339FFF","#336BFF","#3358FF","#5233FF","#8033FF","#B233FF","#FF33C4",
+                     "#FF3396")
+palette.col.short = palette.col.long[c(1,4,7,10,12,17)]
+
