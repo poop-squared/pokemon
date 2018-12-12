@@ -31,7 +31,7 @@ pokedex.gen1$cluster = cluster.cut
 
 
 
-## Clustering (dendogram) for All Generations (5 gens)
+## Clustering (dendogram) for All Generations (6 gens)
 pokedex.allgen.stats = pokedex[, c(5:10)]
 rownames(pokedex.allgen.stats) = pokedex$Name
 hc1 = hclust(dist(pokedex.allgen.stats))
@@ -42,21 +42,55 @@ plot(as.phylo(hc1), type = "fan", tip.color = palette.col.long[cluster.all.18], 
 # Include the new vector in the original pokedex DF
 cluster.cut.all = cutree(hc1, 18)
 pokedex$cluster = cluster.cut.all
-
+pokedex.original = pokedex
 table(pokedex$cluster)
+
+######## Cluster web chart ######
+
+color = palette.col.long
+
+res<-data.frame(pokedex %>% dplyr::select(cluster,HP, Attack, Defense, Sp.Atk, Sp.Def, Speed) %>% dplyr::group_by(cluster) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp.Atk + Sp.Def + Speed) %>% arrange(-sumChars))
+res$color<-color
+max<- ceiling(apply(res[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
+min<-rep.int(0,6)
+par(mfrow=c(3,6))
+par(mar=c(1,1,1,1))
+for(i in 1:nrow(res)){
+  curCol<-(col2rgb(as.character(res$color[i]))%>% as.integer())/255
+  radarchart(rbind(max,min,res[i,2:7]),
+             axistype=2 , 
+             pcol=rgb(curCol[1],curCol[2],curCol[3], alpha = 1) ,
+             pfcol=rgb(curCol[1],curCol[2],curCol[3],.5) ,
+             plwd=2 , cglcol="grey", cglty=1, 
+             axislabcol="black", caxislabels=seq(0,2000,5), cglwd=0.8, vlcex=0.8,
+             title=as.character(res$cluster[i]))
+}
+
+#### 
+
+####### Test set and Training set #########################
+
+#remove generation 6 for testing
+pokedex.test = pokedex[pokedex$Generation==6,]
+#everything else is the training set
+pokedex= subset(pokedex, !(PokeID %in% pokedex.test$PokeID))
+
+#We need to isolate the subset of battles that has pokemons of gen 6
+
+combats.test = subset(combats, (Winner %in% pokedex.test$PokeID | Loser %in% pokedex.test$PokeID))
+combats.a.test = subset(combats.a, (First_pokemon %in% pokedex.test$PokeID | Second_pokemon %in% pokedex.test$PokeID))
+combats = subset(combats, !(BattleID %in% combats.test$BattleID))
+combats.a.train = subset(combats.a, !(BattleID %in% combats.test$BattleID))
 
 ####### Winning % by cluster #############
 
 
   #### Creating new Combat dataframes ############
-  
+
   melted.combats = melt(combats, id = "BattleID")
   
   #add attributes
-  
-  
   melted.combats.merged= merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
-  
   melted.combats = merge(melted.combats, pokedex, by.x = "value", by.y = "PokeID", all.x = TRUE)
   
   
@@ -68,7 +102,7 @@ table(pokedex$cluster)
   ### Subsetting ####
   combats0 = melted.combats.merged
   
-  combats0[,13] = as.factor(combats0[,13]) ###Check why this is not factorizing
+  combats0[,13] = as.factor(combats0[,13])
   str(combats0)
   
   
@@ -104,7 +138,8 @@ positive.difs.df = data.frame(matrix(nrow = length (positive.difs), ncol = 2))
 positive.difs.df[,2] = positive.difs
 positive.difs.df[,1] = names(combats.diff0[2:8])
 
-plot4 = ggplot(data = positive.difs.df, aes(x = X1, y = X2))
+
+plot4 = ggplot(data = positive.difs.df[c(1:6),], aes(x = X1, y = X2))
 plot4 + geom_bar(stat = "identity", fill = "#FF4933") +
   geom_text(aes(label = sprintf("%.01f %%", X2), vjust = 1.6)) +
   xlab("Attributes") +
@@ -112,29 +147,7 @@ plot4 + geom_bar(stat = "identity", fill = "#FF4933") +
   ggtitle("Percentage of Wins given Attribute Advantage") + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle=90, vjust=0.5))
 
-######## Cluster web chart ######
 
-color<-c("#6F35FC","#B7B7CE","#A98FF3","#F95587","#B6A136","#EE8130","#F7D02C","#705746","#735797",
-         "#E2BF65","#96D9D6","#6390F0","#7AC74C","#C22E28","#D685AD","#A33EA1","#A8A77A","#A6B91A")
-
-res<-data.frame(pokedex %>% dplyr::select(cluster,HP, Attack, Defense, Sp.Atk, Sp.Def, Speed) %>% dplyr::group_by(cluster) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp.Atk + Sp.Def + Speed) %>% arrange(-sumChars))
-res$color<-color
-max<- ceiling(apply(res[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
-min<-rep.int(0,6)
-par(mfrow=c(3,6))
-par(mar=c(1,1,1,1))
-for(i in 1:nrow(res)){
-  curCol<-(col2rgb(as.character(res$color[i]))%>% as.integer())/255
-  radarchart(rbind(max,min,res[i,2:7]),
-             axistype=2 , 
-             pcol=rgb(curCol[1],curCol[2],curCol[3], alpha = 1) ,
-             pfcol=rgb(curCol[1],curCol[2],curCol[3],.5) ,
-             plwd=2 , cglcol="grey", cglty=1, 
-             axislabcol="black", caxislabels=seq(0,2000,5), cglwd=0.8, vlcex=0.8,
-             title=as.character(res$cluster[i]))
-}
-
-#### 
 
 ###################################################################################################################
 
@@ -143,9 +156,8 @@ for(i in 1:nrow(res)){
 
 #separate pokemon 1 and pokemon 2
 combats1 = combats.a.train
-combats1$BattleID <- seq.int(nrow(combats1))
+head(combats1)
 
-names(combats1)
 combats.poke1 = combats1[c(1,2)] 
 combats.poke2 = combats1[c(1,3)]
 #add stats
@@ -168,7 +180,7 @@ names(combats.poke)
 #merge winner id
 combats.poke = merge(combats.poke, combats1, by.x = "BattleID" , by.y = "BattleID")
 names(combats.poke)
-combats.poke = combats.poke[-c(37,38)] #remove redundant clumns
+combats.poke = combats.poke[-c(37,38)] #remove redundant columns
 
 names(combats.poke)[c(2,16)] = c("First_pokemon","Second_pokemon")
 # check if first pokemon was winner
@@ -188,12 +200,12 @@ str(combats.poke$outcome.for.1)
 par(mfrow=c(1,1))
 attach(combats.poke)
 battle.forest = rpart(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed,
-                      control=rpart.control(cp=0.01))
+                      control=rpart.control(cp=0.001))
 summary(battle.forest)
 rpart.plot(battle.forest) #find optimal cp
 
 battle.forest1 = rpart(outcome.for.1~diff.HP+ dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed,
-                       control=rpart.control(cp=0.0000001))
+                       control=rpart.control(cp=0.00001))
 printcp(battle.forest1)
 plotcp(battle.forest1)
 cp.opt= battle.forest1$cptable[which.min(battle.forest1$cptable[,"xerror"]),"CP"]
@@ -217,7 +229,7 @@ detach(combats.poke)
 #################################################### PCA analysis ###########################################
 
 #What are the attributes of winners
-str(all.winners)
+
 all.winners.vars = all.winners[c(7:12)]
 pca.winners = prcomp(all.winners.vars, scale = TRUE)
 pca.winners
@@ -253,8 +265,6 @@ fviz_pca_var(pca.losers,
 combats.diff0.vars = combats.diff0[c(2:7)]
 pca.combat.diff = prcomp(combats.diff0.vars, scale = TRUE)
 
-
-
 #scree chart
 fviz_eig(pca.combat.diff,
          main = "Variable PCA - Attribute Difference") 
@@ -267,36 +277,81 @@ fviz_pca_var(pca.combat.diff,
 )
 
 
-#############################################################################################################
+########################################Logistic Regression###############################################
+names(combats.poke)
 
+combats.poke$binom.outcome = ifelse(combats.poke$outcome.for.1 == "Win" , 1 , 0)
+combats.poke$cluster.1 = as.factor(combats.poke$cluster.1)
+combats.poke$cluster.2 = as.factor(combats.poke$cluster.2)
+attach(combats.poke)
+logistic.reg =lrm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2)
+logistic.reg
 
+logistic.reg1 = glm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2, family = "binomial")
 
+predict(logistic.reg1, data.frame(dif.Attack = -3,
+                                 dif.Def= -1,
+                                 dif.Sp.Atk= -12,
+                                 dif.Sp.Def=-0.5,
+                                 dif.Speed = 3,
+                                 cluster.1 = "7",
+                                 cluster.2= "8"), type = "response")
+detach(combats.poke)
 
+############### Out of Sample Testing #############
+#prepare prediction dataset
 
+#separate pokemon 1 and pokemon 2
+combats2 = combats.a.test
+head(combats2)
 
+combats.poke1a = combats2[c(1,2)] 
+combats.poke2a = combats2[c(1,3)]
 
+#add stats
 
+combats.poke1a = merge(combats.poke1a, pokedex.original, by.x = "First_pokemon", by.y = "PokeID", all.x = TRUE)
+combats.poke2a = merge(combats.poke2a, pokedex.original, by.x = "Second_pokemon", by.y = "PokeID", all.x = TRUE)
+combats.pokea = merge(combats.poke1a, combats.poke2a, by.x = "BattleID", by.y = "BattleID", all.x = TRUE)
+names(combats.pokea)
+#clean up names
+names(combats.pokea)
+names(combats.pokea)[c(3:15)] = c("Name.1","Type.1.1","Type.2.1","HP.1", "Attack.1" ,"Defense.1","Sp.Atk.1","Sp.Def.1",
+                                 "Speed.1"   ,"Generation.1" ,"Legendary.1","Sum.total.1","cluster.1")
 
+names(combats.pokea)[c(17:29)] = c("Name.2","Type.1.2","Type.2.2","HP.2", "Attack.2" ,"Defense.2","Sp.Atk.2","Sp.Def.2",
+                                  "Speed.2"   ,"Generation.2" ,"Legendary.2", "Sum.total.2","cluster.2")
+names(combats.pokea)
+#add difference lines for all 6 sats and Sumtotal
+combats.pokea[c(30:36)] = 0
+names(combats.pokea)[c(30:36)] = c("diff.HP", "dif.Attack","dif.Def","dif.Sp.Atk","dif.Sp.Def","dif.Speed","dif.Sumtotal")
+combats.pokea[c(30:36)] = combats.pokea[c(6:11)] - combats.pokea[c(20:25)]
+names(combats.pokea)
+#merge winner id
+combats.pokea = merge(combats.pokea, combats2, by.x = "BattleID" , by.y = "BattleID")
+names(combats.pokea)
+combats.pokea = combats.pokea[-c(37,38)] #remove redundant clumns
 
+names(combats.pokea)[c(2,16)] = c("First_pokemon","Second_pokemon")
+# check if first pokemon was winner
+for (i in 1:nrow(combats.pokea)){
+  combats.pokea$outcome.for.1[i] = ifelse(combats.pokea$Winner[i] == combats.pokea$First_pokemon[i] , "Win", "Lose")
+}
+names(combats.pokea)
+combats.pokea$outcome.for.1=as.factor(combats.pokea$outcome.for.1)
+combats.pokea$binom.outcome = ifelse(combats.pokea$outcome.for.1 == "Win" , 1 , 0)
+combats.pokea$cluster.1 = as.factor(combats.pokea$cluster.1)
+combats.pokea$cluster.2 = as.factor(combats.pokea$cluster.2)
 
+test.set = combats.pokea[, c(15,29:35,38)]
+attach(test.set)
 
+logistic.reg2 =lrm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2)
+logistic.reg2
 
+logistic.reg2 = glm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2, family = "binomial")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+predict(logistic.reg2, test.set, type = "response")
 
 
 ############### Cluster graphs ###########################
