@@ -284,10 +284,10 @@ combats.poke$binom.outcome = ifelse(combats.poke$outcome.for.1 == "Win" , 1 , 0)
 combats.poke$cluster.1 = as.factor(combats.poke$cluster.1)
 combats.poke$cluster.2 = as.factor(combats.poke$cluster.2)
 attach(combats.poke)
-logistic.reg =lrm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2)
+logistic.reg =lrm(outcome.for.1~dif.Attack+dif.Def+dif.Speed+cluster.1+cluster.2)
 logistic.reg
 
-logistic.reg1 = glm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2, family = "binomial")
+logistic.reg1 = glm(outcome.for.1~dif.Attack+dif.Def+dif.Speed+cluster.1+cluster.2, family = "binomial")
 
 predict(logistic.reg1, data.frame(dif.Attack = -3,
                                  dif.Def= -1,
@@ -296,6 +296,7 @@ predict(logistic.reg1, data.frame(dif.Attack = -3,
                                  dif.Speed = 3,
                                  cluster.1 = "7",
                                  cluster.2= "8"), type = "response")
+
 detach(combats.poke)
 
 ############### Out of Sample Testing #############
@@ -343,17 +344,30 @@ combats.pokea$binom.outcome = ifelse(combats.pokea$outcome.for.1 == "Win" , 1 , 
 combats.pokea$cluster.1 = as.factor(combats.pokea$cluster.1)
 combats.pokea$cluster.2 = as.factor(combats.pokea$cluster.2)
 
-test.set = combats.pokea[, c(15,29:35,38)]
+names(combats.pokea)
+test.set = combats.pokea[, c(1,15,29,31,32,35,38,39)]
+names(test.set)
+str(test.set)
 attach(test.set)
 
-logistic.reg2 =lrm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2)
-logistic.reg2
+predict(logistic.reg1, test.set2[1], type = "response")
 
-logistic.reg2 = glm(outcome.for.1~dif.Attack+dif.Def+dif.Sp.Atk+dif.Sp.Def+dif.Speed+cluster.1+cluster.2, family = "binomial")
+logistic.predictions = unname(predict(logistic.reg1, test.set2[1], type = "response"))
 
-predict(logistic.reg2, test.set, type = "response")
+test.set$prediction = logistic.predictions
 
+test.set$binom.predict = ifelse(test.set$prediction > 0.5 , 1, 0)
+test.set$error = ifelse(test.set$binom.outcome == test.set$binom.predict,0,1)
 
+accuracy = 100*sum(test.set$error)/nrow(test.set)
+accuracy
+
+#compare it to the actual data
+predict.df = data.frame(matrix(nrow = length(prediction), ncol = 2 ))
+names(predict.df) = c("BattleID", "first.win.prob")
+for (i in 1:length(prediction)){
+  predict$first.win.prob[1] = unname(predict(logistic.reg1, test.set2[1], type = "response"))
+}
 ############### Cluster graphs ###########################
 
 ##By Cluster
