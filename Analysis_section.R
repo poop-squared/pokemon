@@ -346,7 +346,7 @@ predict(logistic.reg1, data.frame(dif.Attack = -3,
 
 detach(combats.poke)
 
-############### Out of Sample Testing #############
+############### Out of Sample Testing ##############
 #prepare prediction dataset
 
 #separate pokemon 1 and pokemon 2
